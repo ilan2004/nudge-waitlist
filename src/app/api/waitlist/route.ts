@@ -15,7 +15,8 @@ export async function POST(request: Request) {
         }
 
         // 1. Insert into Supabase
-        const { data: dbData, error: dbError } = await getSupabase()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: dbData, error: dbError } = await (getSupabase() as any)
             .from('waitlist')
             .insert([{ email }])
             .select();
