@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { Resend } from 'resend';
+
+export const dynamic = 'force-dynamic';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_xxxxxxxxx'); // Replace 're_xxxxxxxxx' with your real API key if not using .env
 
@@ -13,7 +15,7 @@ export async function POST(request: Request) {
         }
 
         // 1. Insert into Supabase
-        const { data: dbData, error: dbError } = await supabase
+        const { data: dbData, error: dbError } = await getSupabase()
             .from('waitlist')
             .insert([{ email }])
             .select();
