@@ -4,7 +4,13 @@ import { Resend } from 'resend';
 
 export const dynamic = 'force-dynamic';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_xxxxxxxxx'); // Replace 're_xxxxxxxxx' with your real API key if not using .env
+// Initialize Resend with API key from environment variables
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Email configuration from environment variables
+const EMAIL_FROM = process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev';
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'Ilan from Nudge';
+const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'ilanusman03@gmail.com';
 
 export async function POST(request: Request) {
     try {
@@ -12,6 +18,14 @@ export async function POST(request: Request) {
 
         if (!email || !email.includes('@')) {
             return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
+        }
+
+        // Validate environment variables
+        if (!process.env.RESEND_API_KEY) {
+            console.error('RESEND_API_KEY is not configured');
+            return NextResponse.json({ 
+                error: 'Email service is not configured. Please contact support.' 
+            }, { status: 500 });
         }
 
         // 1. Insert into Supabase
@@ -30,12 +44,14 @@ export async function POST(request: Request) {
             throw new Error('Failed to save to database');
         }
 
+        console.log('✅ Email saved to database:', email);
+
         // 2. Send confirmation email with Resend
         try {
             const { data: emailData, error: emailError } = await resend.emails.send({
-                from: 'Ilan from Nudge <onboarding@resend.dev>',
+                from: `${EMAIL_FROM_NAME} <${EMAIL_FROM}>`,
                 to: email,
-                replyTo: 'ilanusman03@gmail.com',
+                replyTo: EMAIL_REPLY_TO,
                 subject: 'You probably didn\'t expect this.',
                 html: `
                   <div style="font-family: Georgia, serif; max-width: 580px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.7; font-size: 16px;">
@@ -71,16 +87,30 @@ export async function POST(request: Request) {
             });
 
             if (emailError) {
-                console.error('Resend error:', emailError);
-                // We still successfully registered them, so don't fail completely
+                console.error('❌ Resend error:', emailError);
+                // Log detailed error but still return success for database registration
+                console.error('Email error details:', {
+                    message: emailError.message,
+                    name: emailError.name,
+                    to: email,
+                    from: `${EMAIL_FROM_NAME} <${EMAIL_FROM}>`
+                });
+            } else {
+                console.log('✅ Email sent successfully:', emailData);
             }
-        } catch (e) {
-            console.error('Email send failed', e);
+        } catch (e: any) {
+            console.error('❌ Email send failed:', e);
+            console.error('Error details:', {
+                message: e.message,
+                stack: e.stack,
+                to: email
+            });
+            // Continue - user is registered even if email fails
         }
 
         return NextResponse.json({ success: true, message: 'Joined waitlist successfully!' });
     } catch (error: any) {
-        console.error('API Error:', error);
+        console.error('❌ API Error:', error);
         return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
     }
 }
