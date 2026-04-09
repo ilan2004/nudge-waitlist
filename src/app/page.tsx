@@ -130,7 +130,7 @@ export default function Home() {
           {/* MOBILE MOCKUP */}
           <div ref={mockupMobileRef} className="mockup-mobile" style={{ opacity: 1 }}>
             <Image
-              src="/phonemock.png"
+              src="/mock3.png"
               alt="Nudge App Preview Mobile"
               className="mockup-img"
               width={1200}
