@@ -26,7 +26,7 @@ body {
   color: var(--primary-green);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
-  background: url('/bg1.png') no-repeat center center fixed;
+  background: url('/bg1.webp') no-repeat center center fixed;
   background-size: cover;
   background-color: #F5EDE6;
 }

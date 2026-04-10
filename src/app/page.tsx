@@ -142,7 +142,7 @@ export default function Home() {
           {/* LEFT MOCKUP */}
           <div ref={mockupLeftRef} className="mockup-left" style={{ opacity: 0 }}>
             <Image
-              src="/mock1.png"
+              src="/mock1.webp"
               alt="Nudge App Preview"
               className="mockup-img"
               width={1200}
@@ -154,7 +154,7 @@ export default function Home() {
           {/* RIGHT MOCKUP */}
           <div ref={mockupRightRef} className="mockup-right" style={{ opacity: 0 }}>
             <Image
-              src="/mock2.png"
+              src="/mock2.webp"
               alt="Nudge App Preview 2"
               className="mockup-img"
               width={1200}
